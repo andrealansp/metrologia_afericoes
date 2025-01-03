@@ -13,6 +13,7 @@ impureza, paixão lasciva, desejo maligno e a avareza, que é idolatria
 
 Projeto realizado para integrar JIRA + SHAREPOINT + POWER APPS
 """
+import logging
 import time
 import traceback
 from typing import List
@@ -25,6 +26,10 @@ from config import *
 from classes.acesso_jira import AcessoJira
 from classes.funcoes import Funcoes
 from classes.emailsender import Emailer
+
+logger = logging.getLogger(__name__)
+logging.basicConfig(filename='app.log', format='%(asctime)s - %(levelname)s: %(message)s', encoding='utf-8',
+                    level=logging.INFO)
 
 tempo_inicial = time.time()
 # Carregar Lista do SharePoint, após essa carga utilizo a lista para verificar quais chamados da lista do sharepoint
@@ -58,9 +63,9 @@ diferenca_chamados_sp = func.retorna_chamados_diferentes(
 try:
     if diferenca_chamados_jira:
         lista_sharepoint.UpdateListItems(data=diferenca_chamados_jira, kind="New")
-
+        logger.info(f"Chamados Adicionados: {len(diferenca_chamados_jira)}")
     else:
-        print("Sem chamados para adicionar")
+        logger.info("Sem chamados para adicionar !")
 except Exception as e:
     print(f"Erro ao interagir com o SharePoint - Adição: {e}")
 
@@ -70,8 +75,9 @@ try:
         for chamado_a_excluir in diferenca_chamados_sp:
             lista_ids_delete.append(chamado_a_excluir["ID"])
         lista_sharepoint.update_list_items(data=lista_ids_delete, kind="Delete")
+        logger.info(f"Chamados Excluidos: {len(lista_ids_delete)}")
     else:
-        print("Sem chamados para excluir")
+        logger.info(f"Sem chamados para excluir")
 except Exception as e:
     print(f"Erro ao interagir com o SharePoint: {e}")
 
@@ -84,10 +90,10 @@ try:
     atualizacao_chamados: List = func.verifica_diferenca(
         lista_atualizada_sharepoint, dados_jira
     )
-    print(len(atualizacao_chamados))
     dados_atualizados_sharepoint.update_list_items(
         data=atualizacao_chamados, kind="Update"
     )
+    logger.info(f"Lista de chamados a serem atualizados - {atualizacao_chamados}")
 except Exception as e:
     print("Erro", e.__str__())
 
