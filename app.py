@@ -93,7 +93,7 @@ try:
     dados_atualizados_sharepoint.update_list_items(
         data=atualizacao_chamados, kind="Update"
     )
-    logger.info(f"Lista de chamados a serem atualizados - {atualizacao_chamados}")
+    logger.info(f"Chamados atualizados. {len(atualizacao_chamados)}")
 except Exception as e:
     print("Erro", e.__str__())
 
